@@ -33,7 +33,7 @@
                                         <td>{{ $user->id }}</td>
                                         <td>{{ $user->nama }}</td>
                                         <td>{{ $user->nim }}</td>
-                                        <td>{{ $user->nama_kelas }}</td>
+                                        <td>{{ $user->nama_kelas ?? ($user->kelas->nama_kelas ?? '-') }}</td>
                                         <td class="text-center">
                                             <a href="{{ url('/user/edit/'.$user->id) }}" 
                                                class="btn btn-sm btn-outline-warning me-2">

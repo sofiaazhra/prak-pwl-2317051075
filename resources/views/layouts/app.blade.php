@@ -36,6 +36,23 @@
             padding: 15px 0;
             text-align: center;
         }
+
+        /* styling for SweetAlert2 custom popup */
+        .swal2-custom-popup {
+            border-radius: 14px !important;
+            box-shadow: 0 12px 40px rgba(2,6,23,0.18) !important;
+            padding: 1.2rem 1.6rem !important;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+        }
+        .swal2-popup .swal2-title {
+            font-weight: 700;
+            font-size: 1.15rem;
+            color: #0b2545;
+        }
+        .swal2-popup .swal2-html-container {
+            color: #243142;
+            font-size: 0.95rem;
+        }
     </style>
 </head>
 <body>
@@ -53,5 +70,57 @@
 
     {{-- Bootstrap JS --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    {{-- SweetAlert2 flash notifications (inserted directly into layout) --}}
+    @if(session('success') || session('error') || $errors->any())
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                @if(session('success'))
+                    Swal.fire({
+                        icon: 'success',
+                        title: {!! json_encode(session('success')) !!},
+                        showConfirmButton: false,
+                        timer: 2200,
+                        position: 'center',
+                        backdrop: true,
+                        customClass: { popup: 'swal2-custom-popup' }
+                    });
+                @endif
+
+                @if(session('error'))
+                    Swal.fire({
+                        icon: 'error',
+                        title: {!! json_encode(session('error')) !!},
+                        showConfirmButton: true,
+                        confirmButtonText: 'Tutup',
+                        position: 'center',
+                        backdrop: true,
+                        customClass: { popup: 'swal2-custom-popup' }
+                    });
+                @endif
+
+                @if($errors->any())
+                    let msgs = '';
+                    @foreach($errors->all() as $err)
+                        msgs += {!! json_encode($err) !!} + '<br>';
+                    @endforeach
+
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Terjadi Kesalahan',
+                        html: msgs,
+                        showConfirmButton: true,
+                        confirmButtonText: 'Tutup',
+                        position: 'center',
+                        backdrop: true,
+                        customClass: { popup: 'swal2-custom-popup' }
+                    });
+                @endif
+            });
+        </script>
+    @endif
+
 </body>
 </html>

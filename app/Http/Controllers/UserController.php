@@ -19,7 +19,7 @@ class UserController extends Controller
     public function index(){
         $data = [
             'title' => 'List User',
-            'users' => $this->userModel->getUser(), // Panggilan ke fungsi getUser()
+            'users' => $this->userModel->getUser(),
         ];
         return view('list_user', $data);
     }
@@ -37,18 +37,67 @@ class UserController extends Controller
         return view('create_user', $data);
     }
 
-    // Memproses data formulir dan menyimpannya ke database
+    // Menyimpan data user baru
     public function store(Request $request)
     {
-        $this->userModel->create([
-            'nama' => $request->input('nama'),
-            'nim' => $request->input('nim'), 
-            'kelas_id' => $request->input('kelas_id'),
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'nim' => 'required|string|max:50|unique:user,nim',
+            'kelas_id' => 'required|uuid',
         ]);
 
-        return redirect()->to('/user'); 
+        // gunakan Eloquent create()
+        $this->userModel->create([
+            'nama' => $request->nama,
+            'nim' => $request->nim, 
+            'kelas_id' => $request->kelas_id,
+        ]);
+
+        return redirect()->to('/user')->with('success', 'Data user berhasil ditambahkan!');
     }
 
-    // Menampilkan daftar pengguna (memanggil getUser() dari Model)
-    
+    // Tampilkan form edit user
+    public function edit($id)
+    {
+        // Ambil data user menggunakan UUID
+        $user = $this->userModel->findOrFail($id);
+        $kelas = $this->kelasModel->getKelas();
+
+        return view('edit_user', [
+            'title' => 'Edit User',
+            'user' => $user,
+            'kelas' => $kelas,
+        ]);
+    }
+
+    // Proses update user
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'nim' => 'required|string|max:50',
+            'kelas_id' => 'required|uuid',
+        ]);
+
+        // Gunakan Eloquent untuk update
+        $user = $this->userModel->findOrFail($id);
+        $user->update([
+            'nama' => $request->nama,
+            'nim' => $request->nim,
+            'kelas_id' => $request->kelas_id,
+        ]);
+
+        return redirect()->to('/user')->with('success', 'Data user berhasil diperbarui!');
+    }
+
+    // Hapus user
+    public function destroy($id)
+    {
+        // Gunakan Eloquent delete()
+        $user = $this->userModel->findOrFail($id);
+        $user->delete();
+
+        return redirect()->to('/user')->with('success', 'Data user berhasil dihapus!');
+    }
+
 }
